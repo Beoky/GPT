@@ -507,7 +507,7 @@ def main_menu():
                 packet_size = config['default_packet_size']
             
             delay_input = input("Verzögerung zwischen Paketen in Sekunden (z.B. 0.0 für keine Verzögerung): ").strip()
-           try:
+            try:
                 delay = float(delay_input)
             except ValueError:
                 print("Ungültige Eingabe. Standardwert 0.0 wird verwendet.")
