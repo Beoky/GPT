@@ -564,7 +564,7 @@ def main_menu():
         else:
             print("Ungültige Option. Bitte versuche es erneut.")
             time.sleep(2)
-            def extended_main_menu():
+def extended_main_menu():
     """
     Erweiterte Version des Hauptmenüs, das zusätzliche Funktionen bietet.
     """
